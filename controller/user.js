@@ -2,6 +2,16 @@ import { UserModel } from "../model/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { loginUserValidator, registerUserValidator, updateUserValidator } from "../validators/user.js";
+import { mailtransporter } from "../utils/mail.js";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 
 // Register a new user
@@ -10,6 +20,8 @@ export const registerUser = async (req, res, next) => {
         const { error, value } = registerUserValidator.validate(req.body);
         if (error) {
             return res.status(422).json({ error: error.details });
+            // return res.status(422).json({ error: "Invalid input format." });
+
         }
 
         const existingUser = await UserModel.findOne({ email: value.email });
@@ -17,15 +29,41 @@ export const registerUser = async (req, res, next) => {
             return res.status(409).json({ message: "User already exists!" });
         }
 
+        // Hash the user's password
         const hashedPassword = bcrypt.hashSync(value.password, 10);
 
+
+        // Save the new user into the database
         const newUser = await UserModel.create({
             ...value,
             password: hashedPassword,
         });
 
+        // Load the email HTML template
+        let emailHtml;
+        try {
+            emailHtml = fs.readFileSync(path.join(__dirname, '../utils/signup-mail.html'), 'utf8');
+        } catch (fileError) {
+            console.error('Error reading email template:', fileError.message);
+            return res.status(500).json({ message: 'Error sending confirmation email.' });
+        }
+
+        // Send confirmation email
+        try {
+            await mailtransporter.sendMail({
+                from: 'gidodoom@gmail.com',
+                to: value.email,
+                subject: 'Welcome to Agrigain! Your Account is Ready!',
+                html: emailHtml
+            });
+        } catch (emailError) {
+            console.error('Error sending email:', emailError.message);
+            return res.status(500).json({ message: 'Registration successful, but failed to send confirmation email.' });
+        }
+
+        // Respond with success message
         res.status(201).json({
-            message: "User registered successfully!",
+            message: `Registration successful! Welcome to Agrigain, ${value.name}!`,
             userId: newUser._id,
         });
     } catch (error) {
@@ -99,4 +137,4 @@ export const updateProfile = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-  };
+};
