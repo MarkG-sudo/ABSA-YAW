@@ -38,15 +38,17 @@ export const registerUser = async (req, res, next) => {
             ...value,
             password: hashedPassword,
         });
-
         // Load the email HTML template
         let emailHtml;
         try {
             emailHtml = fs.readFileSync(path.join(__dirname, '../utils/signup-mail.html'), 'utf8');
+            // Replace placeholder with user's full name
+            emailHtml = emailHtml.replace("{{name}}", `${value.firstName} ${value.lastName}`);
         } catch (fileError) {
             console.error('Error reading email template:', fileError.message);
             return res.status(500).json({ message: 'Error sending confirmation email.' });
         }
+
 
         // Send confirmation email
         try {
@@ -63,7 +65,7 @@ export const registerUser = async (req, res, next) => {
 
         // Respond with success message
         res.status(201).json({
-            message: `Registration successful! Welcome to Agrigain, ${value.name}!`,
+            message: `Registration successful! Welcome to Agrigain, ${value.firstName}!`,
             userId: newUser._id,
         });
     } catch (error) {
