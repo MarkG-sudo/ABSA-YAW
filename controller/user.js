@@ -34,10 +34,16 @@ export const registerUser = async (req, res, next) => {
 
 
         // Save the new user into the database
+        const profilePictureUrl = req.file?.path;
+
+        // Save user into database (only once!)
         const newUser = await UserModel.create({
             ...value,
             password: hashedPassword,
+            role: value.role || "user",
+            avatar: profilePictureUrl,
         });
+        
         // Load the email HTML template
         let emailHtml;
         try {
@@ -53,7 +59,7 @@ export const registerUser = async (req, res, next) => {
         // Send confirmation email
         try {
             await mailtransporter.sendMail({
-                from: 'gidodoom@gmail.com',
+                from: process.env.EMAIL_USER,  // Use email from your environment variable
                 to: value.email,
                 subject: 'Welcome to Agrigain! Your Account is Ready!',
                 html: emailHtml

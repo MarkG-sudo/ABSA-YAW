@@ -1,5 +1,6 @@
 import express from 'express';
 import { hasPermission, isAuthenticated } from '../middlewares/auth.js';
+import { upload } from "../middlewares/cloudinary.js";
 import { getProfile, registerUser, signInUser, updateProfile } from '../controller/user.js';
 
 
@@ -13,7 +14,7 @@ userRouter.get('/users/me', isAuthenticated, hasPermission('get_profile'), getPr
 
 userRouter.patch('/users/me', isAuthenticated, hasPermission('update_profile'), updateProfile);
 
-userRouter.post('/users/register', registerUser);
+userRouter.post('/users/register', upload.single("avatar"), registerUser);
 
 userRouter.post('/users/signIn', signInUser);
 
