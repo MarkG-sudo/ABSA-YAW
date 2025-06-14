@@ -43,7 +43,7 @@ export const registerUser = async (req, res, next) => {
             role: value.role || "user",
             avatar: profilePictureUrl,
         });
-        
+
         // Load the email HTML template
         let emailHtml;
         try {
@@ -92,16 +92,21 @@ export const signInUser = async (req, res, next) => {
             return res.status(404).json({ error: "Account does not exist!" });
         }
 
-        const isPasswordCorrect = bcrypt.compareSync(value.password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(value.password, user.password);
         if (!isPasswordCorrect) {
             return res.status(401).json({ error: "Invalid credentials!" });
         }
 
+
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_PRIVATE_KEY,
-            { expiresIn: "24h" }
+            {
+                algorithm: "HS256", 
+                expiresIn: "24h"
+            }
         );
+
 
         res.json({
             message: "Sign In Successful!",

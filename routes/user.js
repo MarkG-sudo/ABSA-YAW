@@ -8,14 +8,14 @@ const userRouter = express.Router();
 
 //User Routes
 
-userRouter.get('/users/me', isAuthenticated, hasPermission('get_profile'), getProfile);
+// userRouter.get('/users/me', isAuthenticated, hasPermission('get_profile'), getProfile);
 
 // userRouter.get('/users/me/dashboard', isAuthenticated, getUserData);
 
-userRouter.patch('/users/me', isAuthenticated, hasPermission('update_profile'), updateProfile);
+userRouter.patch('/me', isAuthenticated, hasPermission('update_profile'), updateProfile);
 
-userRouter.post('/users/register', upload.single("avatar"), registerUser);
+userRouter.post('/register', upload.single("avatar"), registerUser);
 
-userRouter.post('/users/signIn', signInUser);
+userRouter.post('/signIn', signInUser);
 
 export default userRouter;

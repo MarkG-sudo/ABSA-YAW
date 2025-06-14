@@ -6,7 +6,14 @@ export const permissions = [
             'update_profile',
             'manage_products',
             'view_sales',
-            'update_inventory'
+            'update_inventory',
+            'create_vendor',
+            'get_vendor',
+            'update_vendor',
+            'create_vendor_asset',
+            'get_vendor_asset',
+            'update_vendor_asset',
+            'delete_vendor_asset'
         ]
     },
     {
@@ -16,7 +23,10 @@ export const permissions = [
             'update_profile',
             'browse_products',
             'place_orders',
-            'view_order_history'
+            'view_order_history',
+            'create_buyer',
+            'get_buyer',
+            'update_buyer'
         ]
     },
     {
@@ -26,7 +36,14 @@ export const permissions = [
             'update_profile',
             'list_harvest',
             'track_shipments',
-            'view_sales_data'
+            'view_sales_data',
+            'create_farmer',
+            'get_farmer',
+            'update_farmer',
+            'create_produce',
+            'get_produce',
+            'update_produce',
+            'delete_produce'
         ]
     },
     {
@@ -36,7 +53,11 @@ export const permissions = [
             'update_profile',
             'view_investment_opportunities',
             'track_roi',
-            'contact_vendors'
+            'contact_vendors',
+            'create_investor',
+            'get_investor',
+            'update_investor'
+
         ]
     }
 ];
