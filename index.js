@@ -8,6 +8,8 @@ import investorRouter from "./routes/investor.js";
 import buyerRouter from "./routes/buyer.js";
 import produceRouter from "./routes/produce.js";
 import vendorAssetRouter from "./routes/inputs.js";
+import orderRouter from "./routes/order.js";
+import adminRouter from "./routes/accountApproval.js";
 
 // Initialize Express app
 const app = express();
@@ -38,7 +40,9 @@ app.use('/vendors', vendorRouter);
 app.use('/investors', investorRouter);
 app.use('/buyers', buyerRouter);
 app.use(produceRouter);
-app.use(vendorAssetRouter)
+app.use(vendorAssetRouter);
+app.use(orderRouter);
+app.use(adminRouter);
 
 
 

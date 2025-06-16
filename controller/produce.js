@@ -116,3 +116,15 @@ export const deleteProduce = async (req, res, next) => {
         next(error);
     }
 };
+
+// GET only farmer's own produce
+export const getMyProduce = async (req, res, next) => {
+    try {
+        const userId = req.auth.id;
+        const myProduce = await ProduceModel.find({ userId });
+
+        res.status(200).json({ count: myProduce.length, produce: myProduce });
+    } catch (error) {
+        next(error);
+    }
+};

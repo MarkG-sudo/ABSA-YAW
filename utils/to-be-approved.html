@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Agrigain</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            background: #ffffff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid black;
+        }
+
+        .email-header h2 {
+            color: #00A63E;
+            font-size: 20px;
+            text-align: left;
+        }
+
+        .email-header img {
+            width: 20%;
+        }
+
+        h2 {
+            color: #00A63E;
+            font-size: 20px;
+            text-align: left;
+        }
+
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div  class="email-header">
+            <img src="https://res.cloudinary.com/dmysye8a7/image/upload/v1749514838/agrigain-no-bg-BjxZj2Tn_pismro.png"
+                alt="Agrigain logo">
+        </div>
+        <h2>Hello {{name}},</h2>
+        <p>Your account has been created and is currently <strong>pending approval</strong> by an Agrigain admin.</p>
+        <p>You will be notified once it's approved.</p>
+        <p>We look forward to having you join the community!</p>
+        <p class="footer">
+            Growing Ghana's Agricultural Future,<br>
+            The Agrigain Team.
+        </p>
+    </div>
+</body>
+  
+
+</html>

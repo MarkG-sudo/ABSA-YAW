@@ -26,7 +26,8 @@ export const permissions = [
             'view_order_history',
             'create_buyer',
             'get_buyer',
-            'update_buyer'
+            'update_buyer',
+            'create_review'
         ]
     },
     {
@@ -57,7 +58,67 @@ export const permissions = [
             'create_investor',
             'get_investor',
             'update_investor'
-
+        ]
+    },
+    {
+        role: 'admin',
+        actions: [
+            'get_profile',
+            'update_profile',
+            'view_all_users',
+            'update_user_status',
+            'approve_user_account',
+            'suspend_user',
+            'delete_user',
+            'manage_orders',
+            'update_order_status',
+            'manage_reviews',
+            'get_all_data',        
+            'update_profile',
+            'manage_users',
+            'view_all_orders',
+            'update_order_status',
+            'view_all_reviews',
+            'delete_review',       
+            'manage_products',
+            'view_sales',
+            'update_inventory',
+            'create_vendor',
+            'get_vendor',
+            'update_vendor',
+            'create_vendor_asset',
+            'get_vendor_asset',
+            'update_vendor_asset',
+            'delete_vendor_asset',
+            'get_profile',
+            'update_profile',
+            'browse_products',
+            'place_orders',
+            'view_order_history',
+            'create_buyer',
+            'get_buyer',
+            'update_buyer',
+            'create_review',
+            'get_profile',
+            'update_profile',
+            'list_harvest',
+            'track_shipments',
+            'view_sales_data',
+            'create_farmer',
+            'get_farmer',
+            'update_farmer',
+            'create_produce',
+            'get_produce',
+            'update_produce',
+            'delete_produce',
+            'get_profile',
+            'update_profile',
+            'view_investment_opportunities',
+            'track_roi',
+            'contact_vendors',
+            'create_investor',
+            'get_investor',
+            'update_investor'
         ]
     }
 ];

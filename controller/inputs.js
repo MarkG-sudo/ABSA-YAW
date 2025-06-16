@@ -97,3 +97,16 @@ export const deleteVendorAsset = async (req, res, next) => {
         next(error);
     }
 };
+
+// GET only the vendor's own assets
+export const getMyVendorAssets = async (req, res, next) => {
+    try {
+        const userId = req.auth.id;
+        const myAssets = await VendorAssetModel.find({ userId });
+
+        res.status(200).json({ count: myAssets.length, assets: myAssets });
+    } catch (error) {
+        next(error);
+    }
+};
+  

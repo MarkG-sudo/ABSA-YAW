@@ -7,11 +7,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 
 // Register a new user
@@ -20,23 +17,27 @@ export const registerUser = async (req, res, next) => {
         const { error, value } = registerUserValidator.validate(req.body);
         if (error) {
             return res.status(422).json({ error: error.details });
-            // return res.status(422).json({ error: "Invalid input format." });
-
         }
 
-        const existingUser = await UserModel.findOne({ email: value.email });
-        if (existingUser) {
-            return res.status(409).json({ message: "User already exists!" });
-        }
+        // Enforce SINGLE admin creation
+        if (value.role === "admin") {
+            const existingAdmin = await UserModel.findOne({ role: "admin" });
+            if (existingAdmin) {
+                return res.status(403).json({ message: "An admin account already exists." });
+            }
 
-        // Hash the user's password
+            if (req.body.adminSecret !== process.env.ADMIN_SECRET) {
+                return res.status(403).json({ message: "Unauthorized to create admin account." });
+            }
+
+            //  Auto-approve admin
+            value.status = "approved";
+        }
+        
+
         const hashedPassword = bcrypt.hashSync(value.password, 10);
-
-
-        // Save the new user into the database
         const profilePictureUrl = req.file?.path;
 
-        // Save user into database (only once!)
         const newUser = await UserModel.create({
             ...value,
             password: hashedPassword,
@@ -44,24 +45,21 @@ export const registerUser = async (req, res, next) => {
             avatar: profilePictureUrl,
         });
 
-        // Load the email HTML template
         let emailHtml;
         try {
-            emailHtml = fs.readFileSync(path.join(__dirname, '../utils/signup-mail.html'), 'utf8');
-            // Replace placeholder with user's full name
-            emailHtml = emailHtml.replace("{{name}}", `${value.firstName} ${value.lastName}`);
+            emailHtml = fs.readFileSync(path.join(__dirname, '../utils/to-be-approved.html'), 'utf8');
+            emailHtml = emailHtml.replace("{{name}}", `${value.firstName}`);
         } catch (fileError) {
             console.error('Error reading email template:', fileError.message);
-            return res.status(500).json({ message: 'Error sending confirmation email.' });
+            return res.status(500).json({ message: 'Registration successful, but failed to load confirmation email.' });
         }
+       
 
-
-        // Send confirmation email
         try {
             await mailtransporter.sendMail({
-                from: process.env.EMAIL_USER,  // Use email from your environment variable
+                from: process.env.EMAIL_USER,
                 to: value.email,
-                subject: 'Welcome to Agrigain! Your Account is Ready!',
+                subject: 'Welcome to Agrigain! Awaiting Approval',
                 html: emailHtml
             });
         } catch (emailError) {
@@ -69,7 +67,6 @@ export const registerUser = async (req, res, next) => {
             return res.status(500).json({ message: 'Registration successful, but failed to send confirmation email.' });
         }
 
-        // Respond with success message
         res.status(201).json({
             message: `Registration successful! Welcome to Agrigain, ${value.firstName}!`,
             userId: newUser._id,
@@ -78,6 +75,7 @@ export const registerUser = async (req, res, next) => {
         next(error);
     }
 };
+
 
 // Sign in (login) user
 export const signInUser = async (req, res, next) => {
@@ -97,16 +95,21 @@ export const signInUser = async (req, res, next) => {
             return res.status(401).json({ error: "Invalid credentials!" });
         }
 
+        //  Block unapproved users from logging in
+        if (user.status !== "approved") {
+            return res.status(403).json({
+                error: "Your account has not been approved yet. Please wait for admin review."
+            });
+        }
 
         const token = jwt.sign(
             { id: user._id, role: user.role },
             process.env.JWT_PRIVATE_KEY,
             {
-                algorithm: "HS256", 
+                algorithm: "HS256",
                 expiresIn: "24h"
             }
         );
-
 
         res.json({
             message: "Sign In Successful!",
@@ -116,6 +119,7 @@ export const signInUser = async (req, res, next) => {
         next(error);
     }
 };
+
 
 // Get user profile
 export const getProfile = async (req, res, next) => {

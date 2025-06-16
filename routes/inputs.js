@@ -7,6 +7,7 @@ import {
     getAllVendorAssets,
     updateVendorAsset,
     deleteVendorAsset,
+    getMyVendorAssets
 } from "../controller/inputs.js";
 
 const vendorAssetRouter = express.Router();
@@ -44,5 +45,13 @@ vendorAssetRouter.delete(
     requireRole(["vendor"]),
     deleteVendorAsset
 );
+
+vendorAssetRouter.get(
+    "/assets/me",
+    isAuthenticated,
+    hasPermission("get_vendor_asset"),
+    requireRole(["vendor"]),
+    getMyVendorAssets
+  );
 
 export default vendorAssetRouter;

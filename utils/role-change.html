@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Agrigain</title>
+    <title>Role Updated - Agrigain</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,6 +40,12 @@
             width: 20%;
         }
 
+        h1 {
+            color: #00A63E;
+            font-size: 18px;
+            text-align: left;
+        }
+
         .email-content {
             padding: 20px;
         }
@@ -62,26 +68,23 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>Welcome to Agrigain, {{name}}!</h1>
+            
             <img src="https://res.cloudinary.com/dmysye8a7/image/upload/v1749514838/agrigain-no-bg-BjxZj2Tn_pismro.png"
-                alt="Agrigain logo">
+                alt="Agrigain logo" />
         </div>
+        <h1>Hi {{name}}, <br>Your Role Has Been Updated</h1>
         <div class="email-content">
-            <p>We’re thrilled to have you join our community!</p>
-            <p>Your Agrigain account has been approved by the admin. You can now log in and start using your dashboard.
-            </p>
-            <p>Thank you for joining us in growing Ghana's Agricultural Future!</p>
-            <p>If you have any questions, feel free to <a href="mailto:martinsmcwhytes@gmail.com">reach out to us</a>.
-            </p>
-           
+            <p>This is to inform you that your Agrigain account role has been updated by the admin.</p>
+            <p><strong>New Role:</strong> {{newRole}}</p>
+            <p>You can now log in and access the features available to <strong> {{newRole}} </strong> users.</p>
+            <p>If you have questions, <a href="mailto:martinsmcwhytes@gmail.com">reach out to us</a>.</p>
             <p>Best regards,</p>
-            <p>Agrigain</p>
+            <p>Agrigain Team</p>
         </div>
         <div class="email-footer">
             &copy; 2025 Agrigain. All rights reserved.
         </div>
     </div>
 </body>
-
 
 </html>
