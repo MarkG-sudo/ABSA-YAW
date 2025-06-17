@@ -8,7 +8,7 @@ const userSchema = new Schema({
     phone: { type: String, },
     password: { type: String, required: true, minlength: 8 },
     avatar: { type: String, default: "" },
-    role: { type: String, default: 'buyer', enum: ['buyer', 'vendor', 'farmer', 'investor', 'admin'] },
+    role: { type: String, default: 'buyer', enum: ['buyer', 'vendor', 'farmer', 'investor', 'admin', 'super_admin'] },
     status: { type: String, enum: ['pending', 'approved', 'suspended'], default: 'pending' },
     isSuperAdmin: { type: Boolean, default: false }
     

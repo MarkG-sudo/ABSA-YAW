@@ -7,7 +7,8 @@ import {
     getAllVendorAssets,
     updateVendorAsset,
     deleteVendorAsset,
-    getMyVendorAssets
+    getMyVendorAssets,
+    getSingleVendorAsset
 } from "../controller/inputs.js";
 
 const vendorAssetRouter = express.Router();
@@ -24,8 +25,8 @@ vendorAssetRouter.post(
 vendorAssetRouter.get(
     "/assets",
     isAuthenticated,
-    hasPermission("get_vendor_asset"),
-    requireRole(["vendor"]),
+    hasPermission("get_vendor_assets"),
+    requireRole(["vendor","farmer"]),
     getAllVendorAssets
 );
 
@@ -53,5 +54,15 @@ vendorAssetRouter.get(
     requireRole(["vendor"]),
     getMyVendorAssets
   );
+
+// Public: Get single asset by ID (for buyer/farmer)
+vendorAssetRouter.get(
+    "/assets/:id",
+    isAuthenticated,
+    hasPermission("get_vendor_asset"),
+    requireRole(["farmer", "vendor"]),
+    getSingleVendorAsset
+);
+
 
 export default vendorAssetRouter;

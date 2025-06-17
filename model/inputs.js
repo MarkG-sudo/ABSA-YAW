@@ -14,5 +14,18 @@ const vendorAssetSchema = new Schema({
     ],
 }, { timestamps: true });
 
+// Add virtual field to populate the vendor profile based on userId
+vendorAssetSchema.virtual("vendorProfile", {
+    ref: "VendorProfile",         
+    localField: "userId",        
+    foreignField: "userId",       
+    justOne: true                
+});
+
+// Enable virtuals when converting to JSON or object
+vendorAssetSchema.set("toJSON", { virtuals: true });
+vendorAssetSchema.set("toObject", { virtuals: true });
+  
+
 const VendorAssetModel = model("VendorAsset", vendorAssetSchema);
 export default VendorAssetModel;

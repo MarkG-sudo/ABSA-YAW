@@ -44,7 +44,14 @@ adminRouter.patch(
     changeUserRole
 );
   
-
+// orderRouter.get(
+//     "/admin/orders",
+//     isAuthenticated,
+//     hasPermission("view_all_orders"),
+//     requireRole(["admin", "super_admin"]),
+//     getAllOrdersForAdmin
+// );
+  
 
 // // promote user to admin
 // adminRouter.patch(

@@ -9,11 +9,10 @@ export const registerUserValidator = Joi.object({
     phone: Joi.string().pattern(/^\+?\d{10,15}$/).label("Phone Number"),
     password: Joi.string().min(8).required().label("Password"),
     avatar: Joi.string().uri().allow("").label("Profile Picture"),
-    role: Joi.string().lowercase().valid("buyer", "vendor", "farmer", "investor", "admin").default("buyer").label("Role"),
+    role: Joi.string().lowercase().valid("buyer", "vendor", "farmer", "investor", "admin", "super_admin").default("buyer").label("Role"),
     status: Joi.string().lowercase().valid('pending', 'approved', 'suspended').default('pending'),
     adminSecret: Joi.string().valid(process.env.ADMIN_SECRET).label("Admin Secret").optional()
-
-});
+}).unknown(false); 
 
 
 export const loginUserValidator = Joi.object({
@@ -29,4 +28,4 @@ export const updateUserValidator = Joi.object({
     password: Joi.string().min(6).label("Password"),
     avatar: Joi.string().uri().allow("").label("Profile Picture"),
     role: Joi.string().lowercase().valid("buyer", "vendor", "farmer", "investor", "admin").label("Role"),
-  });
+});

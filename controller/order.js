@@ -1,6 +1,7 @@
 import OrderModel from "../model/order.js";
-import ProduceModel from "../model/produce.js";
 import { createOrderValidator, updateOrderValidator } from "../validators/order.js";
+import ProduceModel from "../model/produce.js";
+import VendorAssetModel from "../model/inputs.js";
 
 // Create a new order
 export const placeOrder = async (req, res, next) => {
@@ -8,18 +9,24 @@ export const placeOrder = async (req, res, next) => {
         const { error, value } = createOrderValidator.validate(req.body);
         if (error) return res.status(422).json({ error: error.details });
 
-        // Ensure the produce exists
-        const produce = await ProduceModel.findById(value.produceId);
-        if (!produce) {
-            return res.status(404).json({ message: "Produce not found." });
+        const { itemId, itemModel } = value;
+
+        // Validate item model type
+        if (!["Produce", "VendorAsset"].includes(itemModel)) {
+            return res.status(400).json({ message: "Invalid item model." });
         }
 
-        // Optional: check stock, limit orders, etc.
+        // Validate item existence
+        const ItemModel = itemModel === "Produce" ? ProduceModel : VendorAssetModel;
+        const itemExists = await ItemModel.findById(itemId);
+        if (!itemExists) {
+            return res.status(404).json({ message: `${itemModel} not found.` });
+        }
 
         const newOrder = await OrderModel.create({
             ...value,
             buyerId: req.auth.id,
-            status: "pending", // default order status
+            status: "pending",
         });
 
         res.status(201).json({ message: "Order placed", order: newOrder });
@@ -32,7 +39,7 @@ export const placeOrder = async (req, res, next) => {
 export const getBuyerOrders = async (req, res, next) => {
     try {
         const orders = await OrderModel.find({ buyerId: req.auth.id })
-            .populate("produceId")
+            .populate("itemId") // refPath will automatically resolve to Produce or VendorAsset
             .sort({ createdAt: -1 });
 
         res.status(200).json(orders);
@@ -46,7 +53,9 @@ export const getOrderById = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const order = await OrderModel.findOne({ _id: id, buyerId: req.auth.id }).populate("produceId");
+        const order = await OrderModel.findOne({ _id: id, buyerId: req.auth.id })
+            .populate("itemId");
+
         if (!order) return res.status(404).json({ message: "Order not found." });
 
         res.status(200).json(order);

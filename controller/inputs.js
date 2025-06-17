@@ -31,16 +31,51 @@ export const createVendorAsset = async (req, res, next) => {
     }
 };
 
-// GET ALL
+// GET all available vendor assets with vendor info and profile
 export const getAllVendorAssets = async (req, res, next) => {
     try {
-        const userId = req.auth.id;
-        const assets = await VendorAssetModel.find({ userId });
-        res.status(200).json(assets);
+        const assets = await VendorAssetModel.find()
+            .populate({
+                path: "userId",
+                select: "firstName lastName"
+            })
+            .populate({
+                path: "vendorProfile",
+                select: "businessName businessAddress"
+            });
+
+        res.status(200).json({ count: assets.length, assets });
     } catch (error) {
         next(error);
     }
 };
+
+
+// GET one vendor asset by ID with vendor info and profile
+export const getSingleVendorAsset = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const asset = await VendorAssetModel.findById(id)
+            .populate({
+                path: "userId",
+                select: "firstName lastName"
+            })
+            .populate({
+                path: "vendorProfile",
+                select: "businessName businessAddress"
+            });
+
+        if (!asset) {
+            return res.status(404).json({ message: "Asset not found." });
+        }
+
+        res.status(200).json(asset);
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 // UPDATE
 export const updateVendorAsset = async (req, res, next) => {

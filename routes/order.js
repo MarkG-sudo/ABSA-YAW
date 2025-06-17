@@ -9,7 +9,7 @@ orderRouter.post(
     "/orders",
     isAuthenticated,
     hasPermission("create_order"),
-    requireRole(["buyer"]),
+    requireRole(["buyer", "farmer"]),
     placeOrder
 );
 
@@ -17,7 +17,7 @@ orderRouter.get(
     "/orders",
     isAuthenticated,
     hasPermission("get_order"),
-    requireRole(["buyer"]),
+    requireRole(["buyer", "farmer"]),
     getBuyerOrders
 );
 
@@ -25,7 +25,7 @@ orderRouter.patch(
     "/orders/:id",
     isAuthenticated,
     hasPermission("update_order"),
-    requireRole(["buyer"]),
+    requireRole(["buyer", "farmer"]),
     updateOrder
 );
 

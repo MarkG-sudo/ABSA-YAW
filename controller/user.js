@@ -10,7 +10,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 // Register a new user
 export const registerUser = async (req, res, next) => {
     try {
@@ -19,22 +18,46 @@ export const registerUser = async (req, res, next) => {
             return res.status(422).json({ error: error.details });
         }
 
-        // Enforce SINGLE admin creation
-        if (value.role === "admin") {
-            const existingAdmin = await UserModel.findOne({ role: "admin", isSuperAdmin: true });
-            if (existingAdmin) {
-                return res.status(403).json({ message: "A super admin account already exists." });
+        // Enforce ONE and ONLY ONE super admin
+        if (value.role === "super_admin") {
+            const existingSuperAdmin = await UserModel.findOne({ isSuperAdmin: true });
+
+            if (existingSuperAdmin) {
+                return res.status(403).json({ message: "A Super Admin already exists. Cannot create another." });
             }
 
+            // Only allow with secret
             if (req.body.adminSecret !== process.env.ADMIN_SECRET) {
-                return res.status(403).json({ message: "Unauthorized to create admin account." });
+                return res.status(403).json({ message: "Unauthorized to create Super Admin." });
             }
 
-            // Auto-approve super admin and flag as super admin
             value.status = "approved";
             value.isSuperAdmin = true;
         }
 
+        // Restrict creating other admin roles unless done by Super Admin
+        if (value.role === "admin") {
+            const requestingUser = req.auth ? await UserModel.findById(req.auth.id) : null;
+            if (!requestingUser?.isSuperAdmin) {
+                return res.status(403).json({ message: "Only the Super Admin can create admin accounts." });
+            }
+
+            if (req.body.adminSecret !== process.env.ADMIN_SECRET) {
+                return res.status(403).json({ message: "Invalid admin secret." });
+            }
+
+            value.status = "approved";
+            value.isSuperAdmin = false;
+        }
+
+        // Prevent isSuperAdmin from being manually passed in
+        delete value.isSuperAdmin;
+
+        // Proceed with user creation
+        const existingUser = await UserModel.findOne({ email: value.email });
+        if (existingUser) {
+            return res.status(409).json({ message: "User already exists!" });
+        }
 
         const hashedPassword = bcrypt.hashSync(value.password, 10);
         const profilePictureUrl = req.file?.path;
@@ -46,27 +69,7 @@ export const registerUser = async (req, res, next) => {
             avatar: profilePictureUrl,
         });
 
-        let emailHtml;
-        try {
-            emailHtml = fs.readFileSync(path.join(__dirname, '../utils/to-be-approved.html'), 'utf8');
-            emailHtml = emailHtml.replace("{{name}}", `${value.firstName}`);
-        } catch (fileError) {
-            console.error('Error reading email template:', fileError.message);
-            return res.status(500).json({ message: 'Registration successful, but failed to load confirmation email.' });
-        }
-       
-
-        try {
-            await mailtransporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: value.email,
-                subject: 'Welcome to Agrigain! Awaiting Approval',
-                html: emailHtml
-            });
-        } catch (emailError) {
-            console.error('Error sending email:', emailError.message);
-            return res.status(500).json({ message: 'Registration successful, but failed to send confirmation email.' });
-        }
+        // Send email
 
         res.status(201).json({
             message: `Registration successful! Welcome to Agrigain, ${value.firstName}!`,
@@ -76,6 +79,7 @@ export const registerUser = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 // Sign in (login) user

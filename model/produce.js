@@ -31,5 +31,16 @@ const produceSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+// virtual field
+produceSchema.virtual('farmerProfile', {
+    ref: 'FarmerProfile',
+    localField: 'userId',
+    foreignField: 'userId',
+    justOne: true
+});
+
+produceSchema.set("toObject", { virtuals: true });
+produceSchema.set("toJSON", { virtuals: true });
+
 const ProduceModel = mongoose.model("Produce", produceSchema);
 export default ProduceModel;

@@ -37,19 +37,51 @@ export const createProduce = async (req, res, next) => {
     }
 };
 
-// GET all produce created by the authenticated farmer
+// GET all available produce with farmer info and farmer profile
 export const getAllProduce = async (req, res, next) => {
     try {
-        const userId = req.auth.id;
+        const produce = await ProduceModel.find()
+            .populate({
+                path: "userId",
+                select: "firstName lastName"
+            })
+            .populate({
+                path: "farmerProfile",
+                select: "farmName region"
+            });
 
-        // Retrieve all produce documents created by this user
-        const produce = await ProduceModel.find({ userId });
+        res.status(200).json({ count: produce.length, produce });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET one produce by ID with farmer info and profile
+export const getSingleProduce = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const produce = await ProduceModel.findById(id)
+            .populate({
+                path: "userId",
+                select: "firstName lastName"
+            })
+            .populate({
+                path: "farmerProfile",
+                select: "farmName region"
+            });
+
+        if (!produce) {
+            return res.status(404).json({ message: "Produce not found." });
+        }
 
         res.status(200).json(produce);
     } catch (error) {
         next(error);
     }
 };
+
+
 
 // UPDATE produce by ID
 export const updateProduce = async (req, res, next) => {

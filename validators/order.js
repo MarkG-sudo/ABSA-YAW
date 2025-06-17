@@ -1,7 +1,8 @@
 import Joi from "joi";
 
 export const createOrderValidator = Joi.object({
-    produceId: Joi.string().required(),
+    itemId: Joi.string().required(),
+    itemModel: Joi.string().valid("Produce", "VendorAsset").required(),
     quantity: Joi.number().min(1).required()
 });
 

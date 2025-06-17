@@ -2,7 +2,8 @@ import { Schema, model } from "mongoose";
 
 const orderSchema = new Schema({
     buyerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    produceId: { type: Schema.Types.ObjectId, ref: "Produce", required: true },
+    itemId: { type: Schema.Types.ObjectId, required: true, refPath: 'itemModel' },
+    itemModel: { type: String, required: true, enum: ['Produce', 'VendorAsset'] },
     quantity: { type: Number, required: true },
     status: { type: String, default: "pending", enum: ["pending", "confirmed", "shipped", "delivered"] },
     paymentStatus: { type: String, default: "unpaid", enum: ["unpaid", "paid"] },

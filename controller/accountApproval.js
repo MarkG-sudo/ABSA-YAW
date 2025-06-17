@@ -43,7 +43,7 @@ export const updateUserStatus = async (req, res, next) => {
 
         if (!updatedUser) return res.status(404).json({ message: "User not found." });
 
-        // ✉️ Send email if account is approved
+        //  Send email if account is approved
         if (value.status === "approved") {
             try {
                 let emailHtml = fs.readFileSync(
@@ -75,16 +75,35 @@ export const deleteUser = async (req, res, next) => {
         const user = await UserModel.findById(req.params.id);
         if (!user) return res.status(404).json({ message: "User not found." });
 
-        // Only the super admin can modify themselves
-        if (targetUser.isSuperAdmin && req.auth.id !== targetUser._id.toString()) {
-            return res.status(403).json({ message: "Only the Super Admin can modify their own account." });
-        }
-
+        //  Prevent deleting Super Admin
         if (user.isSuperAdmin) {
             return res.status(403).json({ message: "Cannot delete the Super Admin." });
         }
 
-        await user.deleteOne(); //  UserModel.deleteOne({ _id: req.params.id });
+        //  Send email notification before deletion
+        try {
+            let emailHtml = fs.readFileSync(
+                path.join(__dirname, "../utils/account-deleted.html"),
+                "utf8"
+            );
+
+            emailHtml = emailHtml.replace(/{{name}}/g, `${user.firstName}`);
+
+            await mailtransporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: "Your Agrigain Account Has Been Deleted",
+                html: emailHtml,
+            });
+        } catch (err) {
+            console.error("❗ Failed to send deletion email:", err.message);
+            // Do not block deletion on email failure
+        }
+
+
+        // delete
+        await user.deleteOne();
+
         res.status(200).json({ message: "User deleted." });
     } catch (error) {
         next(error);
@@ -100,20 +119,17 @@ export const changeUserRole = async (req, res, next) => {
         const user = await UserModel.findById(userId).select("-password");
         if (!user) return res.status(404).json({ message: "User not found." });
 
-        //  Only Super Admin can modify their own account
-        if (user.isSuperAdmin && req.auth.id !== user._id.toString()) {
-            return res.status(403).json({ message: "Only the Super Admin can modify their own account." });
+        //  Prevent ANY modification of super admin role
+        if (user.isSuperAdmin) {
+            return res.status(403).json({ message: "The Super Admin's role cannot be changed." });
         }
 
-        //  Prevent multiple super admins
+        //  Prevent creating additional super admins
         if (newRole === "super_admin") {
-            const existingSuperAdmin = await UserModel.findOne({ role: "super_admin" });
-            if (existingSuperAdmin) {
-                return res.status(403).json({ message: "Super admin already exists." });
-            }
+            return res.status(403).json({ message: "Cannot assign super_admin role to another user." });
         }
 
-        //  Prevent removing the last admin
+        //  Prevent demoting the last admin
         if (user.role === "admin" && newRole !== "admin") {
             const adminCount = await UserModel.countDocuments({ role: "admin" });
             if (adminCount === 1) {
@@ -124,7 +140,7 @@ export const changeUserRole = async (req, res, next) => {
         user.role = newRole;
         await user.save();
 
-        //  Send email notification
+        // Notify user of role change
         const emailTemplatePath = path.join(__dirname, "../utils/role-change.html");
         let emailHtml;
         try {

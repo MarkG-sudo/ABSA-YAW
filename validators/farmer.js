@@ -4,6 +4,7 @@ export const createFarmerValidator = Joi.object({
     farmSize: Joi.string().required().messages({
         "string.empty": "Farm size is required."
     }),
+    farmName: Joi.string(),
     cropTypes: Joi.array().items(Joi.string()).min(1).required().messages({
         "array.min": "At least one crop type must be specified.",
         "any.required": "Crop types are required."

@@ -4,7 +4,8 @@ import { toJSON } from "@reis/mongoose-to-json";
 
 const farmerProfileSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-    farmSize: String,
+    farmName: { type: String}, 
+    farmSize: { type: String }, 
     cropTypes: [String],
     region: String,
     experienceYears: Number,

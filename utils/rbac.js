@@ -13,7 +13,8 @@ export const permissions = [
             'create_vendor_asset',
             'get_vendor_asset',
             'update_vendor_asset',
-            'delete_vendor_asset'
+            'delete_vendor_asset',
+            'get_vendor_assets'
         ]
     },
     {
@@ -27,7 +28,11 @@ export const permissions = [
             'create_buyer',
             'get_buyer',
             'update_buyer',
-            'create_review'
+            'create_review',
+            'get_produce',
+            'create_order',
+            'get_order',
+            'update_order'
         ]
     },
     {
@@ -44,7 +49,11 @@ export const permissions = [
             'create_produce',
             'get_produce',
             'update_produce',
-            'delete_produce'
+            'delete_produce',
+            'get_vendor_assets',
+            'create_order',
+            'get_order',
+            'update_order'
         ]
     },
     {
