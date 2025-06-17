@@ -3,11 +3,6 @@ import { createFarmerValidator, updateFarmerValidator } from "../validators/farm
 
 // Create a farmer profile
 export const createFarmerProfile = async (req, res, next) => {
-    if (process.env.NODE_ENV === "development") {
-        console.log("Route hit: createFarmerProfile");
-        console.log("Received createFarmerProfile request:", req.body);
-    }
-
     try {
         const isFarmer = req.auth?.role?.trim().toLowerCase() === "farmer";
         if (!isFarmer) {
@@ -26,10 +21,6 @@ export const createFarmerProfile = async (req, res, next) => {
             return res.status(400).json({ message: "Profile already exists. Use update instead." });
         }
 
-        if (process.env.NODE_ENV === "development") {
-            console.log("Creating profile with:", { ...value, userId });
-        }
-
         const profile = await FarmerProfileModel.create({
             userId,
             farmName: value.farmName,
@@ -37,7 +28,6 @@ export const createFarmerProfile = async (req, res, next) => {
             farmSize: value.farmSize,
             cropTypes: value.cropTypes,
             experienceYears: value.experienceYears
-           
         });
 
         res.status(201).json({ message: "Farmer profile created.", profile });
@@ -46,12 +36,10 @@ export const createFarmerProfile = async (req, res, next) => {
     }
 };
 
+
 // Update a farmer profile
 export const updateFarmerProfile = async (req, res, next) => {
-    if (process.env.NODE_ENV === "development") {
-        console.log("Route hit: updateFarmerProfile");
-    }
-
+    
     try {
         const isFarmer = req.auth?.role?.trim().toLowerCase() === "farmer";
         if (!isFarmer) {
@@ -64,10 +52,6 @@ export const updateFarmerProfile = async (req, res, next) => {
         }
 
         const userId = req.auth.id;
-        if (process.env.NODE_ENV === "development") {
-            console.log("Looking for profile with userId:", userId);
-        }
-
         const updated = await FarmerProfileModel.findOneAndUpdate(
             { userId },
             value,
@@ -86,10 +70,6 @@ export const updateFarmerProfile = async (req, res, next) => {
 
 // Get farmer profile
 export const getFarmerProfile = async (req, res, next) => {
-    if (process.env.NODE_ENV === "development") {
-        console.log("Route hit: getFarmerProfile");
-    }
-
     try {
         const userId = req.auth.id;
         const profile = await FarmerProfileModel.findOne({ userId }).lean();

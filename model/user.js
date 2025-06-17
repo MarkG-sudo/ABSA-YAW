@@ -9,8 +9,9 @@ const userSchema = new Schema({
     password: { type: String, required: true, minlength: 8 },
     avatar: { type: String, default: "" },
     role: { type: String, default: 'buyer', enum: ['buyer', 'vendor', 'farmer', 'investor', 'admin'] },
-    status: { type: String, enum: ['pending', 'approved', 'suspended'], default: 'pending' }
-
+    status: { type: String, enum: ['pending', 'approved', 'suspended'], default: 'pending' },
+    isSuperAdmin: { type: Boolean, default: false }
+    
 }, {
     timestamps: true
 });

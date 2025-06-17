@@ -16,8 +16,6 @@ export const isAuthenticated = expressjwt({
 export const hasPermission = (action) => {
     return async (req, res, next) => {
         try {
-            console.log("Decoded JWT:", req.auth); // Debugging
-
             if (!req.auth || !req.auth.id) {
                 return res.status(401).json({ error: "Authentication required." });
             }

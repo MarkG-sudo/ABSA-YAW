@@ -21,19 +21,20 @@ export const registerUser = async (req, res, next) => {
 
         // Enforce SINGLE admin creation
         if (value.role === "admin") {
-            const existingAdmin = await UserModel.findOne({ role: "admin" });
+            const existingAdmin = await UserModel.findOne({ role: "admin", isSuperAdmin: true });
             if (existingAdmin) {
-                return res.status(403).json({ message: "An admin account already exists." });
+                return res.status(403).json({ message: "A super admin account already exists." });
             }
 
             if (req.body.adminSecret !== process.env.ADMIN_SECRET) {
                 return res.status(403).json({ message: "Unauthorized to create admin account." });
             }
 
-            //  Auto-approve admin
+            // Auto-approve super admin and flag as super admin
             value.status = "approved";
+            value.isSuperAdmin = true;
         }
-        
+
 
         const hashedPassword = bcrypt.hashSync(value.password, 10);
         const profilePictureUrl = req.file?.path;
