@@ -119,6 +119,7 @@ export const signInUser = async (req, res, next) => {
         res.json({
             message: "Sign In Successful!",
             accessToken: token,
+            role: user.role
         });
     } catch (error) {
         next(error);
