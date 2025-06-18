@@ -15,6 +15,7 @@ export const permissions = [
             'update_vendor_asset',
             'delete_vendor_asset',
             'get_vendor_assets'
+        
         ]
     },
     {
@@ -32,7 +33,9 @@ export const permissions = [
             'get_produce',
             'create_order',
             'get_order',
-            'update_order'
+            'update_order',
+            'place_orders',
+            'view_sales'
         ]
     },
     {
@@ -43,6 +46,7 @@ export const permissions = [
             'list_harvest',
             'track_shipments',
             'view_sales_data',
+            'view_sales',
             'create_farmer',
             'get_farmer',
             'update_farmer',
@@ -53,7 +57,8 @@ export const permissions = [
             'get_vendor_assets',
             'create_order',
             'get_order',
-            'update_order'
+            'update_order',
+            'place_orders'
         ]
     },
     {
@@ -66,7 +71,9 @@ export const permissions = [
             'contact_vendors',
             'create_investor',
             'get_investor',
-            'update_investor'
+            'update_investor',
+            'apply_investment',
+            ''
         ]
     },
     {
@@ -85,6 +92,7 @@ export const permissions = [
             'view_all_reviews',
             'delete_review',
             'get_all_data',
+            'create_investment'
         ]
     },
     {
@@ -143,7 +151,8 @@ export const permissions = [
             'contact_vendors',
             'create_investor',
             'get_investor',
-            'update_investor'
+            'update_investor',
+            'place_orders'
         ]
     }
       

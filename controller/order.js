@@ -2,6 +2,15 @@ import OrderModel from "../model/order.js";
 import { createOrderValidator, updateOrderValidator } from "../validators/order.js";
 import ProduceModel from "../model/produce.js";
 import VendorAssetModel from "../model/inputs.js";
+import { UserModel } from "../model/user.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { mailtransporter } from "../utils/mail.js";
+
+// Path setup for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create a new order
 export const placeOrder = async (req, res, next) => {
@@ -9,17 +18,15 @@ export const placeOrder = async (req, res, next) => {
         const { error, value } = createOrderValidator.validate(req.body);
         if (error) return res.status(422).json({ error: error.details });
 
-        const { itemId, itemModel } = value;
+        const { itemId, itemModel, quantity } = value;
 
-        // Validate item model type
         if (!["Produce", "VendorAsset"].includes(itemModel)) {
             return res.status(400).json({ message: "Invalid item model." });
         }
 
-        // Validate item existence
         const ItemModel = itemModel === "Produce" ? ProduceModel : VendorAssetModel;
-        const itemExists = await ItemModel.findById(itemId);
-        if (!itemExists) {
+        const item = await ItemModel.findById(itemId);
+        if (!item) {
             return res.status(404).json({ message: `${itemModel} not found.` });
         }
 
@@ -28,6 +35,32 @@ export const placeOrder = async (req, res, next) => {
             buyerId: req.auth.id,
             status: "pending",
         });
+
+        // Notify vendor or farmer
+        const owner = await UserModel.findById(item.userId);
+        if (owner) {
+            try {
+                let emailHtml = fs.readFileSync(
+                    path.join(__dirname, "../utils/order-notification.html"),
+                    "utf8"
+                );
+
+                emailHtml = emailHtml
+                    .replace(/{{ownerName}}/g, owner.firstName)
+                    .replace(/{{itemName}}/g, item.name)
+                    .replace(/{{quantity}}/g, quantity)
+                    .replace(/{{buyerName}}/g, req.auth.firstName || "a buyer");
+
+                await mailtransporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: owner.email,
+                    subject: "New Order Received on Agrigain!",
+                    html: emailHtml,
+                });
+            } catch (mailErr) {
+                console.error("Error sending order notification email:", mailErr.message);
+            }
+        }
 
         res.status(201).json({ message: "Order placed", order: newOrder });
     } catch (err) {
@@ -39,7 +72,7 @@ export const placeOrder = async (req, res, next) => {
 export const getBuyerOrders = async (req, res, next) => {
     try {
         const orders = await OrderModel.find({ buyerId: req.auth.id })
-            .populate("itemId") // refPath will automatically resolve to Produce or VendorAsset
+            .populate("itemId") 
             .sort({ createdAt: -1 });
 
         res.status(200).json(orders);

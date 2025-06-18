@@ -10,6 +10,11 @@ import produceRouter from "./routes/produce.js";
 import vendorAssetRouter from "./routes/inputs.js";
 import orderRouter from "./routes/order.js";
 import adminRouter from "./routes/accountApproval.js";
+import cartRouter from "./routes/cart.js";
+import checkoutRouter from "./routes/checkoutCart.js";
+import metricsRouter from "./routes/orderMetrics.js";
+import investmentRouter from "./routes/investment.js";
+
 
 // Initialize Express app
 const app = express();
@@ -43,6 +48,10 @@ app.use(produceRouter);
 app.use(vendorAssetRouter);
 app.use(orderRouter);
 app.use(adminRouter);
+app.use(cartRouter);
+app.use(checkoutRouter);
+app.use(metricsRouter);
+app.use(investmentRouter);
 
 
 
