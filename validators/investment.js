@@ -29,6 +29,32 @@ export const createInvestmentValidator = Joi.object({
 });
 
 
+export const updateInvestmentValidator = Joi.object({
+    title: Joi.string().messages({
+        "string.empty": "Title cannot be empty."
+    }),
+    description: Joi.string(),
+    roi: Joi.number().min(0).messages({
+        "number.base": "ROI must be a number."
+    }),
+    amountRequired: Joi.number().min(0).messages({
+        "number.base": "Amount must be a number."
+    }),
+    durationMonths: Joi.number().min(1).messages({
+        "number.base": "Duration must be a number."
+    }),
+    deadline: Joi.date(),
+    location: Joi.string().messages({
+        "string.empty": "Location cannot be empty."
+    }),
+    status: Joi.string().lowercase().valid("open", "closed").messages({
+        "any.only": "Status must be 'open' or 'closed'."
+    })
+}).min(1).messages({
+    "object.min": "At least one field must be updated."
+});
+
+
 export const investorApplicationValidator = Joi.object({
     principal: Joi.number().required(),
     paymentMethod: Joi.string().valid("bank", "mobile_money").required(),

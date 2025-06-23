@@ -7,6 +7,7 @@ import {
     applyToInvestment,
     getMyApplications,
     getAllInvestorApplications,
+    updateInvestment,deleteInvestment
 } from "../controller/investment.js";
 
 const investmentRouter = express.Router();
@@ -42,5 +43,21 @@ investmentRouter.get(
     requireRole(["admin", "super_admin"]),
     getAllInvestorApplications
 );
+
+investmentRouter.patch(
+    "/admin/investments/:id",
+    isAuthenticated,
+    requireRole(["admin", "super_admin"]),
+    hasPermission("manage_investments"),
+    updateInvestment
+);
+
+investmentRouter.delete(
+    "/admin/investments/:id",
+    isAuthenticated,
+    requireRole(["admin", "super_admin"]),
+    hasPermission("manage_investments"),
+    deleteInvestment
+  );
 
 export default investmentRouter;

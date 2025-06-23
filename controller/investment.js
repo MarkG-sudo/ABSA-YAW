@@ -1,7 +1,7 @@
 import InvestmentModel from "../model/investment.js";
 import InvestorApplicationModel from "../model/investorApplication.js";
 import { UserModel } from "../model/user.js";
-import { createInvestmentValidator, investorApplicationValidator } from "../validators/investment.js";
+import { createInvestmentValidator, updateInvestmentValidator,  investorApplicationValidator } from "../validators/investment.js";
 import { mailtransporter } from "../utils/mail.js";
 import fs from 'fs';
 import path from 'path';
@@ -102,6 +102,37 @@ export const getAllInvestorApplications = async (req, res, next) => {
             .populate("investorProfile"); 
 
         res.status(200).json(applications);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// Update an investment
+export const updateInvestment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { error, value } = updateInvestmentValidator.validate(req.body);
+        if (error) return res.status(422).json({ error: error.details });
+
+        const updated = await InvestmentModel.findByIdAndUpdate(id, value, { new: true });
+        if (!updated) return res.status(404).json({ message: "Investment not found." });
+
+        res.status(200).json({ message: "Investment updated", investment: updated });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Delete an investment
+export const deleteInvestment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const deleted = await InvestmentModel.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ message: "Investment not found." });
+
+        res.status(200).json({ message: "Investment deleted." });
     } catch (error) {
         next(error);
     }
