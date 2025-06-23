@@ -93,7 +93,8 @@ export const permissions = [
             'delete_review',
             'get_all_data',
             'create_investment',
-            'manage_investments'
+            'manage_investments',
+            'approve_user_investment'
         ]
     },
     {
@@ -155,7 +156,8 @@ export const permissions = [
             'update_investor',
             'place_orders',
             'create_investment',
-            'manage_investments'
+            'manage_investments',
+            'approve_user_investment'
         ]
     }
       

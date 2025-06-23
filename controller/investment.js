@@ -22,6 +22,101 @@ export const createInvestmentListing = async (req, res, next) => {
     }
 };
 
+
+export const getAllInvestorApplications = async (req, res, next) => {
+    try {
+        const applications = await InvestorApplicationModel.find()
+            .populate("investmentId")
+            .populate("investorId", "firstName lastName email")
+            .populate("investorProfile");
+
+        res.status(200).json(applications);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// Update an investment
+export const updateInvestment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { error, value } = updateInvestmentValidator.validate(req.body);
+        if (error) return res.status(422).json({ error: error.details });
+
+        const updated = await InvestmentModel.findByIdAndUpdate(id, value, { new: true });
+        if (!updated) return res.status(404).json({ message: "Investment not found." });
+
+        res.status(200).json({ message: "Investment updated", investment: updated });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Delete an investment
+export const deleteInvestment = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const deleted = await InvestmentModel.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ message: "Investment not found." });
+
+        res.status(200).json({ message: "Investment deleted." });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateInvestmentApplicationStatus = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // Validate status
+        if (!['approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ message: "Status must be either 'approved' or 'rejected'." });
+        }
+
+        const application = await InvestorApplicationModel.findById(id)
+            .populate("investmentId")
+            .populate("investorId");
+
+        if (!application) {
+            return res.status(404).json({ message: "Application not found." });
+        }
+
+        application.status = status;
+        await application.save();
+
+        // Send email to investor
+        const investor = application.investorId;
+        const investment = application.investmentId;
+
+        let subject = `Your Agrigain Investment Application was ${status}`;
+        let messageHtml = `
+            <p>Dear ${investor.firstName},</p>
+            <p>Your application for the investment project <strong>${investment.title}</strong> has been <strong>${status}</strong>.</p>
+            <p>Thank you for using Agrigain.</p>
+        `;
+
+        await mailtransporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: investor.email,
+            subject,
+            html: messageHtml,
+        });
+
+        res.status(200).json({ message: `Application ${status}`, application });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+// User Actions
+
 export const getAllInvestments = async (req, res, next) => {
     try {
         const investments = await InvestmentModel.find({ status: "open" }).sort({ createdAt: -1 });
@@ -30,6 +125,7 @@ export const getAllInvestments = async (req, res, next) => {
         next(error);
     }
 };
+
 
 export const applyToInvestment = async (req, res, next) => {
     try {
@@ -88,52 +184,30 @@ export const getMyApplications = async (req, res, next) => {
     try {
         const investorId = req.auth.id;
         const apps = await InvestorApplicationModel.find({ investorId }).populate("investmentId");
-        res.status(200).json(apps);
+        res.status(200).json({ count: apps.length, data: apps });
     } catch (error) {
         next(error);
     }
 };
 
-export const getAllInvestorApplications = async (req, res, next) => {
+
+export const getMyInvestments = async (req, res, next) => {
     try {
-        const applications = await InvestorApplicationModel.find()
-            .populate("investmentId")
-            .populate("investorId", "firstName lastName email")
-            .populate("investorProfile"); 
+        const investorId = req.auth.id;
 
-        res.status(200).json(applications);
+        const approvedApplications = await InvestorApplicationModel.find({
+            investorId,
+            status: 'approved'
+        }).populate("investmentId");
+
+        const investments = approvedApplications.map(app => app.investmentId);
+
+        res.status(200).json({
+            count: investments.length,
+            investments
+        });
     } catch (error) {
         next(error);
     }
 };
 
-
-// Update an investment
-export const updateInvestment = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { error, value } = updateInvestmentValidator.validate(req.body);
-        if (error) return res.status(422).json({ error: error.details });
-
-        const updated = await InvestmentModel.findByIdAndUpdate(id, value, { new: true });
-        if (!updated) return res.status(404).json({ message: "Investment not found." });
-
-        res.status(200).json({ message: "Investment updated", investment: updated });
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Delete an investment
-export const deleteInvestment = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const deleted = await InvestmentModel.findByIdAndDelete(id);
-        if (!deleted) return res.status(404).json({ message: "Investment not found." });
-
-        res.status(200).json({ message: "Investment deleted." });
-    } catch (error) {
-        next(error);
-    }
-};
